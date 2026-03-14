@@ -4,23 +4,26 @@ const logger = require("../utils/logger");
 
 /**
  * POST /api/scrape
- * Body: { "drug": "accutane" }
+ * Body: { "drug": "accutane", "mode": "quick" | "full" }
  *
- * Spawns the Python PRAW scraper script and streams the result back.
+ * Spawns the Python scraper script and streams the result back.
+ * mode defaults to "quick" (~1-2 min) for live API calls.
+ * Use "full" for comprehensive overnight data collection.
  */
 const handleScrape = async (req, res) => {
   try {
-    const { drug } = req.body;
+    const { drug, mode } = req.body;
 
     if (!drug) {
       return res.status(400).json({ error: "Missing required field: drug" });
     }
 
-    logger.info(`Scrape request received for drug: "${drug}"`);
+    const scrapeMode = mode === "full" ? "--full" : "--quick";
+    logger.info(`Scrape request received for drug: "${drug}" (${scrapeMode})`);
 
     const scriptPath = path.join(__dirname, "../../scripts/scraper.py");
 
-    const python = spawn("python", [scriptPath, drug], {
+    const python = spawn("python", [scriptPath, drug, scrapeMode], {
       env: { ...process.env },
     });
 

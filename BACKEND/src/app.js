@@ -21,7 +21,7 @@ app.use(express.json());
 
 // Database Connection
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 // Main Routes
 app.use("/api/scrape", scrapeRoutes);
@@ -44,15 +44,8 @@ app.get("/", (req, res) => {
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Backend AI processing logic is running on port ${PORT}`);
-    });
   })
   .catch(err => {
     console.error('Failed to connect to MongoDB', err);
-    // Continue running app anyway for demonstration or mock purposes
-    app.listen(PORT, () => {
-      console.log(`Backend AI processing logic is running on port ${PORT} (without MongoDB)`);
-    });
   });
 module.exports = app;
