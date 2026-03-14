@@ -1,12 +1,12 @@
 const { biomedicalNerModel } = require('../config/bytez');
 const { parseExtractedEntities } = require('../utils/medicalParser');
+const { anonymizeText } = require('./anonymization.service');
 const { getCache, setCache } = require('../utils/cache');
 const { withRetry } = require('../utils/aiPatterns');
 
 /**
  * Extracts medical entities from text using the Bytez biomedical-ner-all model.
- * The model performs Named Entity Recognition (NER) to identify drugs, symptoms,
- * dosages, and other medical terms from Reddit comments.
+ * Text is first anonymized (PHI stripped) before NER extraction.
  */
 const extractEntities = async (commentId) => {
   try {
@@ -19,10 +19,15 @@ const extractEntities = async (commentId) => {
 
     // In a real scenario, fetch the comment from DB:
     // const comment = await CommentModel.findById(commentId);
-    // const text = comment.body;
+    // const rawText = comment.body;
     
-    // For now, mock the text:
-    const text = `I took 20mg of Accutane and by Week 2 I had severe dry lips.`;
+    // For now, mock the text with PII included:
+    const rawText = `My name is John Smith from NYC. I took 20mg of Accutane and by Week 2 I had severe dry lips.`;
+
+    // Step 1: Anonymize the text (strip PHI for HIPAA compliance)
+    const anonymized = await anonymizeText(rawText);
+    const text = anonymized.anonymized_text;
+    console.log(`[Extract] Anonymized text: "${text.substring(0, 80)}..."`);
 
     console.log(`[Bytez NER] Running biomedical-ner-all model for comment ${commentId}`);
 

@@ -11,8 +11,13 @@ const biomedicalNerModel = sdk.model("d4data/biomedical-ner-all");
 // Classifies premise-hypothesis pairs as: entailment, contradiction, or neutral
 const nliModel = sdk.model("cross-encoder/nli-deberta-v3-small");
 
+// PII masker model for PHI anonymization (HIPAA compliance)
+// Detects and redacts patient names, locations, dates from medical narratives
+const piiMaskerModel = sdk.model("obi/deid_roberta_i2b2");
+
 module.exports = {
   sdk,
   biomedicalNerModel,
-  nliModel
+  nliModel,
+  piiMaskerModel
 };
