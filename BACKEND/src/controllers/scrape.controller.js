@@ -1,6 +1,7 @@
 const { spawn } = require("child_process");
 const path = require("path");
 const logger = require("../utils/logger");
+const { processScrapedComments } = require("../services/pipeline.service");
 
 /**
  * POST /api/scrape
@@ -38,7 +39,7 @@ const handleScrape = async (req, res) => {
       stderr += data.toString();
     });
 
-    python.on("close", (code) => {
+    python.on("close", async (code) => {
       if (code !== 0) {
         logger.error(`Python scraper exited with code ${code}: ${stderr}`);
         return res.status(500).json({
@@ -49,10 +50,23 @@ const handleScrape = async (req, res) => {
 
       try {
         const result = JSON.parse(stdout);
+
+        // Auto-trigger the NER pipeline to generate Insights from new comments
+        logger.info(`[Pipeline] Starting post-scrape analysis for "${drug}"...`);
+        let pipelineResult = null;
+        try {
+          pipelineResult = await processScrapedComments(drug);
+          logger.info(`[Pipeline] Generated ${pipelineResult.processed} insights for "${drug}"`);
+        } catch (pipelineError) {
+          logger.error(`[Pipeline] Failed: ${pipelineError.message}`);
+          // Don't fail the whole request — scraping still succeeded
+        }
+
         return res.status(200).json({
           message: "Scraping completed successfully",
           drug,
           saved: result,
+          pipeline: pipelineResult,
         });
       } catch (parseError) {
         logger.error(`Failed to parse scraper output: ${stdout}`);
