@@ -15,9 +15,9 @@ const generateToken = (id) => {
  */
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, state, district, gender, mobileNumber } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !state || !district || !gender || !mobileNumber) {
       return res.status(400).json({ error: "Please add all fields" });
     }
 
@@ -32,6 +32,10 @@ const registerUser = async (req, res) => {
       name,
       email,
       password,
+      state,
+      district,
+      gender,
+      mobileNumber,
     });
 
     if (user) {
@@ -40,6 +44,10 @@ const registerUser = async (req, res) => {
         _id: user.id,
         name: user.name,
         email: user.email,
+        state: user.state,
+        district: user.district,
+        gender: user.gender,
+        mobileNumber: user.mobileNumber,
         token: generateToken(user._id),
       });
     } else {
@@ -57,18 +65,29 @@ const registerUser = async (req, res) => {
  */
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, email, password } = req.body;
+    const loginId = identifier || email;
 
-    // Check for user email
-    const user = await User.findOne({ email });
+    if (!loginId || !password) {
+      return res.status(400).json({ error: "Please add all fields" });
+    }
+
+    // Check for user email or mobile number
+    const user = await User.findOne({
+      $or: [{ email: loginId }, { mobileNumber: loginId }],
+    });
 
     // Match password
     if (user && (await user.matchPassword(password))) {
-      logger.info(`User logged in: ${email}`);
+      logger.info(`User logged in: ${loginId}`);
       res.json({
         _id: user.id,
         name: user.name,
         email: user.email,
+        state: user.state,
+        district: user.district,
+        gender: user.gender,
+        mobileNumber: user.mobileNumber,
         token: generateToken(user._id),
       });
     } else {
@@ -90,6 +109,10 @@ const getUserProfile = async (req, res) => {
     _id: req.user.id,
     name: req.user.name,
     email: req.user.email,
+    state: req.user.state,
+    district: req.user.district,
+    gender: req.user.gender,
+    mobileNumber: req.user.mobileNumber,
     createdAt: req.user.createdAt,
   });
 };

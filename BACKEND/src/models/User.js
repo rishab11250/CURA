@@ -17,6 +17,23 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    state: {
+      type: String,
+      required: true,
+    },
+    district: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ["M", "F", "Other"],
+      required: true,
+    },
+    mobileNumber: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
