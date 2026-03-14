@@ -1,11 +1,12 @@
-const { bytezClient } = require('../config/bytez');
+const { biomedicalNerModel } = require('../config/bytez');
 const { parseExtractedEntities } = require('../utils/medicalParser');
 const { getCache, setCache } = require('../utils/cache');
-const { withRetry, buildHumanizedPrompt, parseStructuredOutput } = require('../utils/aiPatterns');
+const { withRetry } = require('../utils/aiPatterns');
 
 /**
- * Extracts medical entities from a comment ID by querying MongoDB and sending text to Bytez API.
- * (Mocked MongoDB fetching for now)
+ * Extracts medical entities from text using the Bytez biomedical-ner-all model.
+ * The model performs Named Entity Recognition (NER) to identify drugs, symptoms,
+ * dosages, and other medical terms from Reddit comments.
  */
 const extractEntities = async (commentId) => {
   try {
@@ -23,44 +24,25 @@ const extractEntities = async (commentId) => {
     // For now, mock the text:
     const text = `I took 20mg of Accutane and by Week 2 I had severe dry lips.`;
 
-    const systemPrompt = buildHumanizedPrompt();
-    
-    // Fallback schema if extraction fails completely
-    const fallbackExtraction = {
-      drug: null,
-      side_effect: null,
-      dosage: null,
-      timeline_marker: null
-    };
+    console.log(`[Bytez NER] Running biomedical-ner-all model for comment ${commentId}`);
 
-    console.log(`[Mock] Calling LLM API for comment ${commentId} with System Prompt: "${systemPrompt.substring(0, 50)}..."`);
-    
-    // We wrap the API call in withRetry to ensure Reliability AI Pattern
-    const rawAiResponse = await withRetry(async () => {
-      // Make an API call to Bytez.
-      /*
-      const response = await bytezClient.post('/chat/completions', { 
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: text }
-        ]
-      });
-      return response.data.choices[0].message.content;
-      */
-      
-      // Simulating a flaky LLM text response that occasionally fails:
-      if (Math.random() < 0.2) {
-         throw new Error("Simulated 503 Service Unavailable");
+    // Use the Bytez SDK to run the biomedical NER model with retry logic
+    const nerOutput = await withRetry(async () => {
+      const { error, output } = await biomedicalNerModel.run(text);
+      if (error) {
+        throw new Error(`Bytez API error: ${error}`);
       }
-      
-      // Simulating the raw string output from an LLM formatted as markdown JSON
-      return `\`\`\`json\n{\n  "drug": "Accutane",\n  "side_effect": "dry lips",\n  "dosage": "20mg",\n  "timeline_marker": "Week 2"\n}\n\`\`\``;
+      return output;
     }, 3, 1000);
 
-    // Parse the structured output using our utility (Structured Outputs Pattern)
-    const extractedData = parseStructuredOutput(rawAiResponse, fallbackExtraction);
+    console.log(`[Bytez NER] Raw output:`, JSON.stringify(nerOutput, null, 2));
 
-    // Existing medical parser logic
+    // Transform NER output into our expected entity format
+    // The biomedical-ner-all model returns entities like:
+    // [{ entity_group: "Drug", word: "Accutane", score: 0.99 }, ...]
+    const extractedData = transformNerOutput(nerOutput);
+
+    // Run through the medical parser for additional normalization
     const result = parseExtractedEntities(extractedData);
     
     setCache(cacheKey, result);
@@ -68,7 +50,7 @@ const extractEntities = async (commentId) => {
 
   } catch (error) {
     console.error(`Error extracting entities after retries: ${error.message}`);
-    // Return graceful fallback rather than bursting the app
+    // Return graceful fallback rather than crashing the app
     return parseExtractedEntities({
       drug: null,
       side_effect: null,
@@ -76,6 +58,44 @@ const extractEntities = async (commentId) => {
       timeline_marker: null
     });
   }
+};
+
+/**
+ * Transforms raw NER model output into our structured entity format.
+ * Maps entity groups from the biomedical model to our schema fields.
+ */
+const transformNerOutput = (nerEntities) => {
+  const result = {
+    drug: null,
+    side_effect: null,
+    dosage: null,
+    timeline_marker: null
+  };
+
+  if (!Array.isArray(nerEntities)) {
+    console.warn('[Bytez NER] Unexpected output format, returning empty extraction');
+    return result;
+  }
+
+  for (const entity of nerEntities) {
+    const group = (entity.entity_group || entity.entity || '').toLowerCase();
+    const word = (entity.word || '').trim();
+
+    if (!word) continue;
+
+    // Map biomedical NER entity groups to our schema
+    if (group.includes('drug') || group.includes('chemical')) {
+      result.drug = result.drug || word;
+    } else if (group.includes('disease') || group.includes('symptom') || group.includes('sign_symptom')) {
+      result.side_effect = result.side_effect || word;
+    } else if (group.includes('dosage') || group.includes('dose')) {
+      result.dosage = result.dosage || word;
+    } else if (group.includes('duration') || group.includes('time') || group.includes('frequency')) {
+      result.timeline_marker = result.timeline_marker || word;
+    }
+  }
+
+  return result;
 };
 
 module.exports = {

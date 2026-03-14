@@ -1,18 +1,13 @@
-const axios = require('axios');
-const http = require('http');
-const https = require('https');
+const Bytez = require('bytez.js');
 
-// Configure Bytez API client
-const bytezClient = axios.create({
-  baseURL: process.env.BYTEZ_API_URL || 'https://api.bytez.com/v1',
-  headers: {
-    'Authorization': `Bearer ${process.env.BYTEZ_API_KEY}`,
-    'Content-Type': 'application/json'
-  },
-  httpAgent: new http.Agent({ keepAlive: true }),
-  httpsAgent: new https.Agent({ keepAlive: true })
-});
+// Initialize Bytez SDK with the API key
+const bytezKey = process.env.BYTEZ_API_KEY;
+const sdk = new Bytez(bytezKey);
+
+// Use the biomedical NER model for extracting medical entities
+const biomedicalNerModel = sdk.model("d4data/biomedical-ner-all");
 
 module.exports = {
-  bytezClient
+  sdk,
+  biomedicalNerModel
 };
