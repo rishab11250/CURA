@@ -22,7 +22,7 @@ export default function CuraSearchDiscovery() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
-        body: JSON.stringify({ medication: searchQuery })
+        body: JSON.stringify({ drug: searchQuery })
       });
 
       const result = await response.json();

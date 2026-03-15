@@ -67,9 +67,9 @@ class RedditMaxScraper:
         self.quick_mode = quick_mode
 
         # MongoDB setup
-        mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+        mongo_uri = os.getenv("MONGODB_URI", os.getenv("MONGO_URI", "mongodb://localhost:27017"))
         self.mongo_client = pymongo.MongoClient(mongo_uri)
-        db = self.mongo_client["drug_insights"]
+        db = self.mongo_client["medical_ai_db"]
         self.posts = db["posts"]
         self.comments = db["comments"]
 
@@ -289,12 +289,16 @@ class RedditMaxScraper:
                         d = child.get("data", {})
                         is_new = self.save_post(d, drug_name, sub)
                         # Skip comment fetching in quick mode for speed
-                        if is_new and not self.quick_mode:
+                        # Wait, we need comments for the AI pipeline! We will fetch them but limit to top 3 in quick mode.
+                        if is_new:
                             permalink = d.get("permalink", "")
                             if permalink:
+                                if self.quick_mode and getattr(self, "quick_comments_fetched", 0) > 3:
+                                    continue
                                 self.fetch_comments_for_post(
                                     permalink, d["id"]
                                 )
+                                self.quick_comments_fetched = getattr(self, "quick_comments_fetched", 0) + 1
 
                     after = body.get("data", {}).get("after")
                     if not after:

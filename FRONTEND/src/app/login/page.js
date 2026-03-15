@@ -49,6 +49,8 @@ export default function LoginPage() {
             mobileNumber: formData.get("phone"),
             gender: genderMap[formData.get("gender")] || "Other",
             age: parseInt(formData.get("age")) || undefined,
+            state: formData.get("state") || "",
+            district: formData.get("district") || "",
           }),
         });
 
@@ -261,6 +263,34 @@ export default function LoginPage() {
                       type="number"
                       name="age"
                       placeholder="e.g. 25"
+                      className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-on-surface-variant/50"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface uppercase tracking-wider pl-1">State</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[18px]">map</span>
+                    <input
+                      type="text"
+                      name="state"
+                      placeholder="e.g. Rajasthan"
+                      className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-on-surface-variant/50"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-on-surface uppercase tracking-wider pl-1">District</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[18px]">location_city</span>
+                    <input
+                      type="text"
+                      name="district"
+                      placeholder="e.g. Jaipur"
                       className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3 pl-9 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-on-surface-variant/50"
                     />
                   </div>
