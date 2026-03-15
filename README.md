@@ -23,10 +23,10 @@ CURA is a state-of-the-art medical platform designed to bridge the gap between p
 
 ### **1. Medical Intelligence Dashboard**
 - **Reddit Data Ingestion**: Automated scraping of medical subreddits (e.g., r/Accutane, r/Metformin) to capture real-world patient discussions.
-- **Optimized for Demo**: 
-    - **API Limit**: **30 comments** per run (balanced for 15-20 sec response).
-    - **Search Depth**: **10 pages** of comments per subreddit.
-    - **Speed**: Reduced network timeouts and retries for faster feedback.
+- **Optimized for Demo (Lightning Speed)**: 
+    - **API Limit**: **10 comments** per run (lightning response ~10-15 sec).
+    - **Search Depth**: **5 pages** of comments per subreddit.
+    - **Network**: Minimal delays (0.05s) and aggressive timeouts (3s).
 - **Recovery Analytics**: Dynamic visualization of symptom frequency and recovery progress using `Recharts`.
 - **BS-Meter (Credibility Score)**: Uses Natural Language Inference (NLI) to fact-check Reddit drug claims against official FDA adverse event data.
 

@@ -45,8 +45,8 @@ const processScrapedComments = async (drugName) => {
   }).select('comment_id');
   const alreadyProcessed = new Set(existingInsights.map((i) => i.comment_id));
 
-  // Cap at 30 comments to balance data richness and response speed
-  const newComments = allComments.filter((c) => !alreadyProcessed.has(c.comment_id)).slice(0, 30);
+  // Cap at 10 comments for lightning-fast demo responses (reduces AI overhead)
+  const newComments = allComments.filter((c) => !alreadyProcessed.has(c.comment_id)).slice(0, 10);
   logger.info(`[Pipeline] ${newComments.length} new comments to process (${alreadyProcessed.size} already done)`);
 
   // 4. Process each comment through NER
@@ -55,7 +55,7 @@ const processScrapedComments = async (drugName) => {
   let errors = 0;
   const savedInsights = [];
 
-  // Process in batches of 5 for more reliable API responses from AI models
+  // Process in batches of 5 for speed and reliability
   const BATCH_SIZE = 5;
   for (let i = 0; i < newComments.length; i += BATCH_SIZE) {
     const batch = newComments.slice(i, i + BATCH_SIZE);

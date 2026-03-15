@@ -46,10 +46,10 @@ USER_AGENT = (
     "Chrome/124.0.0.0 Safari/537.36"
 )
 
-REQUEST_TIMEOUT = 5  # Reduced for demo speed
-MAX_RETRIES = 2       # Reduced for demo speed
-BASE_DELAY = 0.2  # Reduced delay for demo speed
-MAX_COMMENT_DEPTH_PAGES = 10 # Reduced for demo speed
+REQUEST_TIMEOUT = 3  # Lightning fast for demo
+MAX_RETRIES = 1       # Skip slow nodes immediately
+BASE_DELAY = 0.05     # Minimal delay
+MAX_COMMENT_DEPTH_PAGES = 5 # Smallest set of comments
 
 
 # ─── Scraper Class ────────────────────────────────────────────────────────────
@@ -304,10 +304,11 @@ class RedditMaxScraper:
                     if not after:
                         break
                     pages += 1
-                    time.sleep(BASE_DELAY + random.uniform(0, 0.3))
+                    # Minimal delay for demo speed
+                    time.sleep(BASE_DELAY)
 
                 self.subreddits_scraped.add(sub)
-                time.sleep(BASE_DELAY + random.uniform(0, 0.5))
+                time.sleep(BASE_DELAY)
 
     # ── PASS 2: Hot / Top posts filtered for drug mentions ───────────────
 
