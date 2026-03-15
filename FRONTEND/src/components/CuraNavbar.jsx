@@ -87,6 +87,54 @@ export default function CuraNavbar() {
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [user, setUser] = useState(null);
+  
+  // Notification State
+  const [suggestions, setSuggestions] = useState([]);
+  const [currentSuggestion, setCurrentSuggestion] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    fetch('/health_suggestions.json')
+      .then(res => res.json())
+      .then(data => setSuggestions(data))
+      .catch(err => console.error("Error loading suggestions:", err));
+  }, []);
+
+  useEffect(() => {
+    if (suggestions.length === 0) return;
+    
+    let index = 0;
+    let timeout1, timeout2, timeout3;
+    
+    // Function to run the popup cycle
+    const runCycle = () => {
+      setCurrentSuggestion(suggestions[index]);
+      setShowPopup(true);
+      
+      // Keep it on screen for 3 seconds, then hide it
+      timeout2 = setTimeout(() => {
+        setShowPopup(false);
+      }, 3000);
+    };
+
+    // Initial popup delay so it doesn't fire instantly on page load
+    timeout1 = setTimeout(() => {
+      runCycle();
+      
+      // Start the repeating 5-second interval after the first popup cycle begins
+      timeout3 = setInterval(() => {
+        index = (index + 1) % suggestions.length;
+        runCycle();
+      }, 5000);
+    }, 1000);
+
+    // Cleanup all timers when the component unmounts (crucial for React Strict Mode)
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+      clearInterval(timeout3);
+    };
+  }, [suggestions]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -132,10 +180,36 @@ export default function CuraNavbar() {
         </div>
         <div className="flex items-center gap-2">
           {/* Notifications */}
-          <button className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-all relative">
-            <span className="material-symbols-outlined text-[22px]">notifications</span>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-          </button>
+          <div className="relative">
+            <button className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-full transition-all relative">
+              <span className="material-symbols-outlined text-[22px]">notifications</span>
+              <span className={`absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full ${showPopup ? 'animate-ping opacity-75' : ''}`}></span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+            </button>
+            
+            {/* Notification Popup */}
+            <div className={`absolute top-full right-0 mt-4 w-80 bg-surface-container-lowest border border-outline-variant/20 rounded-2xl shadow-[0_12px_40px_-10px_rgba(0,0,0,0.12)] p-4 transition-all duration-500 transform origin-top-right ${showPopup ? "opacity-100 scale-100 translate-y-0 visible" : "opacity-0 scale-95 -translate-y-2 invisible"}`}>
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[20px]">
+                    {currentSuggestion?.category === 'hydration' ? 'water_drop' : 
+                     currentSuggestion?.category === 'activity' ? 'directions_run' : 
+                     currentSuggestion?.category === 'sleep' ? 'bedtime' : 
+                     currentSuggestion?.category === 'mental_health' ? 'self_improvement' : 'health_and_safety'}
+                  </span>
+                </div>
+                <div>
+                  <h6 className="text-sm font-bold text-on-surface mb-1 flex items-center justify-between">
+                    Health Suggestion
+                    {currentSuggestion?.priority === 'high' && <span className="bg-error/10 text-error text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider ml-2">High</span>}
+                  </h6>
+                  <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
+                    {currentSuggestion?.suggestion}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Settings */}
           <button

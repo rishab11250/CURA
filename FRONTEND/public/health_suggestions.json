@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "suggestion": "Stay hydrated! Drink at least 8 glasses of water daily.",
+    "category": "hydration",
+    "priority": "normal"
+  },
+  {
+    "id": 2,
+    "suggestion": "Take a 5-minute break from your screen and stretch your legs.",
+    "category": "activity",
+    "priority": "high"
+  },
+  {
+    "id": 3,
+    "suggestion": "Did you know? Regular sleep patterns improve neurological recovery.",
+    "category": "sleep",
+    "priority": "normal"
+  },
+  {
+    "id": 4,
+    "suggestion": "Consider adding Omega-3 rich foods like Salmon to your meal today.",
+    "category": "diet",
+    "priority": "normal"
+  },
+  {
+    "id": 5,
+    "suggestion": "Don't forget to take deep breaths! Try the 4-7-8 breathing technique.",
+    "category": "mental_health",
+    "priority": "high"
+  },
+  {
+    "id": 6,
+    "suggestion": "It's time for your daily dose of Vitamin D. 15 minutes of sun helps!",
+    "category": "lifestyle",
+    "priority": "normal"
+  },
+  {
+    "id": 7,
+    "suggestion": "Posture check! Sit up straight and relax your shoulders.",
+    "category": "activity",
+    "priority": "high"
+  },
+  {
+    "id": 8,
+    "suggestion": "Reduce your caffeine intake in the afternoon for better deep sleep.",
+    "category": "diet",
+    "priority": "normal"
+  },
+  {
+    "id": 9,
+    "suggestion": "Brief meditative pauses lower cortisol and reduce systemic inflammation.",
+    "category": "mental_health",
+    "priority": "normal"
+  },
+  {
+    "id": 10,
+    "suggestion": "Reminder: Try to blink more often to prevent eye strain from screens.",
+    "category": "lifestyle",
+    "priority": "normal"
+  },
+  {
+    "id": 11,
+    "suggestion": "Electrolytes are key. Consider a magnesium-rich snack like almonds or pumpkin seeds.",
+    "category": "diet",
+    "priority": "high"
+  },
+  {
+    "id": 12,
+    "suggestion": "Take a short walk outdoors. Fresh air drastically improves focus and circulation.",
+    "category": "activity",
+    "priority": "normal"
+  },
+  {
+    "id": 13,
+    "suggestion": "Cut down on processed sugars to avoid energy crashes in the afternoon.",
+    "category": "diet",
+    "priority": "high"
+  },
+  {
+    "id": 14,
+    "suggestion": "Practice gratitude! Studies show writing down 3 things improves overall mood.",
+    "category": "mental_health",
+    "priority": "normal"
+  },
+  {
+    "id": 15,
+    "suggestion": "Staring at a wall 20 feet away for 20 seconds saves your vision. Do it now!",
+    "category": "lifestyle",
+    "priority": "high"
+  },
+  {
+    "id": 16,
+    "suggestion": "Did you know? Green tea contains L-theanine which improves focus and reduces anxiety.",
+    "category": "diet",
+    "priority": "normal"
+  },
+  {
+    "id": 17,
+    "suggestion": "If you're feeling sluggish, try drinking a cold glass of water right away.",
+    "category": "hydration",
+    "priority": "normal"
+  },
+  {
+    "id": 18,
+    "suggestion": "Time for a neck roll! Slowly rotate your neck to relieve tension.",
+    "category": "activity",
+    "priority": "normal"
+  },
+  {
+    "id": 19,
+    "suggestion": "Avoid blue light from screens at least one hour before you go to bed.",
+    "category": "sleep",
+    "priority": "high"
+  },
+  {
+    "id": 20,
+    "suggestion": "A quick 10-minute power nap can completely reboot your cognitive function.",
+    "category": "sleep",
+    "priority": "normal"
+  }
+]
