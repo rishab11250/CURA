@@ -268,21 +268,19 @@ export default function CuraTreatment() {
             Estimated Cost Range:
           </div>
           <div className="flex-1 max-w-md w-full ml-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-bold text-primary">{costRanges[costRangeIndex]}</span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max={costRanges.length - 1} 
-              step="1" 
-              value={costRangeIndex}
-              onChange={(e) => setCostRangeIndex(Number(e.target.value))}
-              className="w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary" 
-            />
-            <div className="flex justify-between text-[10px] text-on-surface-variant mt-1 font-medium px-1">
-              <span>Any</span>
-              <span>₹5L+</span>
+            <div className="relative w-full">
+              <select
+                value={costRangeIndex}
+                onChange={(e) => setCostRangeIndex(Number(e.target.value))}
+                className="w-full bg-surface-container-high text-on-surface text-sm font-bold rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all appearance-none cursor-pointer"
+              >
+                {costRanges.map((range, idx) => (
+                  <option key={idx} value={idx}>{range === "Any" ? "Any Price Range" : range}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+                <span className="material-symbols-outlined text-lg">expand_more</span>
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "suggestion": "Stay hydrated! Drink at least 8 glasses of water daily.",
+    "category": "hydration",
+    "priority": "normal"
+  },
+  {
+    "id": 2,
+    "suggestion": "Take a 5-minute break from your screen and stretch your legs.",
+    "category": "activity",
+    "priority": "high"
+  },
+  {
+    "id": 3,
+    "suggestion": "Did you know? Regular sleep patterns improve neurological recovery.",
+    "category": "sleep",
+    "priority": "normal"
+  },
+  {
+    "id": 4,
+    "suggestion": "Consider adding Omega-3 rich foods like Salmon to your meal today.",
+    "category": "diet",
+    "priority": "normal"
+  },
+  {
+    "id": 5,
+    "suggestion": "Don't forget to take deep breaths! Try the 4-7-8 breathing technique.",
+    "category": "mental_health",
+    "priority": "high"
+  },
+  {
+    "id": 6,
+    "suggestion": "It's time for your daily dose of Vitamin D. 15 minutes of sun helps!",
+    "category": "lifestyle",
+    "priority": "normal"
+  }
+]
