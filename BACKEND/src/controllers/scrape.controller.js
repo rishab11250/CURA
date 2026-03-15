@@ -22,7 +22,16 @@ const handleScrape = async (req, res) => {
     });
   } catch (error) {
     logger.error(`Scrape controller error: ${error.message}`);
-    return res.status(500).json({ error: error.message || "Internal server error" });
+    // Sanitize raw Python tracebacks so users see a friendly message
+    let userMessage = "An error occurred during analysis. Please try again.";
+    if (error.message?.includes("ModuleNotFoundError")) {
+      userMessage = "Server is missing required dependencies. Please contact support.";
+    } else if (error.message?.includes("Traceback")) {
+      userMessage = "Analysis service encountered an internal error.";
+    } else if (error.message) {
+      userMessage = error.message;
+    }
+    return res.status(500).json({ error: userMessage });
   }
 };
 

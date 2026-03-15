@@ -95,12 +95,28 @@ export default function CuraTreatment() {
         {/* Timeline */}
         <div className="col-span-12 lg:col-span-8 flex flex-col h-full">
           <ChronologicalTimeline 
+            drugName={drugName}
             timelineData={data?.timeline || [
-              { marker: "Week 1", sentimentScore: 30, description: "Initial distress, high side-effects reported." },
-              { marker: "Week 2", sentimentScore: 45, description: "Adapting to treatment, minor improvements." },
-              { marker: "Month 1", sentimentScore: 65, description: "Noticeable symptom reduction." },
-              { marker: "Month 2", sentimentScore: 85, description: "Recovery trajectory stabilized." },
-              { marker: "Month 3", sentimentScore: 92, description: "Full clinical remission reported by most users." }
+              { week: "Day 1", symptom: "nausea", count: 18 },
+              { week: "Day 1", symptom: "headache", count: 14 },
+              { week: "Day 1", symptom: "fatigue", count: 22 },
+              { week: "Week 1", symptom: "dry skin", count: 28 },
+              { week: "Week 1", symptom: "dry lips", count: 34 },
+              { week: "Week 1", symptom: "fatigue", count: 19 },
+              { week: "Week 1", symptom: "mood changes", count: 8 },
+              { week: "Week 1", symptom: "nosebleed", count: 5 },
+              { week: "Week 2", symptom: "peeling", count: 15 },
+              { week: "Week 2", symptom: "dry skin", count: 24 },
+              { week: "Week 2", symptom: "breakout", count: 12 },
+              { week: "Week 2", symptom: "joint pain", count: 7 },
+              { week: "Month 1", symptom: "dry skin", count: 20 },
+              { week: "Month 1", symptom: "back pain", count: 9 },
+              { week: "Month 1", symptom: "hair loss", count: 6 },
+              { week: "Month 1", symptom: "sun sensitivity", count: 11 },
+              { week: "Month 2", symptom: "dry lips", count: 10 },
+              { week: "Month 2", symptom: "joint pain", count: 4 },
+              { week: "Month 3", symptom: "dry skin", count: 5 },
+              { week: "Month 3", symptom: "hair loss", count: 3 },
             ]} 
           />
         </div>
