@@ -1,6 +1,7 @@
 const Comment = require('../models/Comment');
 const Insight = require('../models/Insight');
 const { extractEntities } = require('./entityExtraction.service');
+const { verifyClaim } = require('./verification.service');
 const logger = require('../utils/logger');
 
 /**
@@ -70,6 +71,23 @@ const processScrapedComments = async (drugName) => {
             return null;
           }
 
+          // Verify the claim to get the true credibility score
+          let credibilityScore = 0;
+          let bsMeterVerdict = 'neutral';
+          if (entities.drug && entities.side_effect) {
+            try {
+              const verificationResult = await verifyClaim(
+                entities.drug, 
+                entities.side_effect, 
+                comment.text
+              );
+              credibilityScore = verificationResult.credibility_score;
+              bsMeterVerdict = verificationResult.bs_meter?.verdict || 'neutral';
+            } catch (vErr) {
+              logger.warn(`[Pipeline] Verification failed for ${comment.comment_id}: ${vErr.message}`);
+            }
+          }
+
           // Save as an Insight document
           const insight = await Insight.findOneAndUpdate(
             { comment_id: comment.comment_id },
@@ -79,7 +97,7 @@ const processScrapedComments = async (drugName) => {
               side_effect: entities.side_effect || '',
               dosage: entities.dosage || '',
               timeline_marker: entities.timeline_marker || '',
-              credibility_score: 0, // Will be calculated by verification service later
+              credibility_score: credibilityScore,
             },
             { upsert: true, new: true }
           );

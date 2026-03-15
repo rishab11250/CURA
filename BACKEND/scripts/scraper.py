@@ -32,12 +32,8 @@ SUBREDDITS = [
     "Nootropics", "Supplements",
 ]
 
-# Quick mode: India-focused + a few key global health subs (~1-2 min)
+# Quick mode: Only top 3 global subs for speed (~15-20 sec)
 QUICK_SUBREDDITS = [
-    # All Indian subs
-    "india", "IndianMedSchool", "DoctorsOfIndia", "Ayurveda",
-    "indianents", "TwoXIndia", "AskIndia",
-    # Top 3 global (most drug discussion)
     "askdocs", "ChronicPain", "depression",
 ]
 
@@ -50,10 +46,10 @@ USER_AGENT = (
     "Chrome/124.0.0.0 Safari/537.36"
 )
 
-REQUEST_TIMEOUT = 15  # seconds
-MAX_RETRIES = 3
-BASE_DELAY = 2  # seconds between requests
-MAX_COMMENT_DEPTH_PAGES = 500
+REQUEST_TIMEOUT = 8  # seconds
+MAX_RETRIES = 2
+BASE_DELAY = 0.5  # seconds between requests
+MAX_COMMENT_DEPTH_PAGES = 100
 
 
 # ─── Scraper Class ────────────────────────────────────────────────────────────
@@ -71,9 +67,9 @@ class RedditMaxScraper:
         self.quick_mode = quick_mode
 
         # MongoDB setup
-        mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+        mongo_uri = os.getenv("MONGODB_URI", os.getenv("MONGO_URI", "mongodb://localhost:27017"))
         self.mongo_client = pymongo.MongoClient(mongo_uri)
-        db = self.mongo_client["drug_insights"]
+        db = self.mongo_client["medical_ai_db"]
         self.posts = db["posts"]
         self.comments = db["comments"]
 
@@ -255,6 +251,7 @@ class RedditMaxScraper:
         subs = QUICK_SUBREDDITS if self.quick_mode else SUBREDDITS
         sorts = QUICK_SORTS if self.quick_mode else SEARCH_SORTS
         max_pages = 1 if self.quick_mode else 4
+        result_limit = 10 if self.quick_mode else 100
         self._log(f"═══ Pass 1: Search ({len(sorts)} sort, {len(subs)} subs) ═══")
 
         for sub in subs:
@@ -268,7 +265,7 @@ class RedditMaxScraper:
                     params = {
                         "q": drug_name,
                         "restrict_sr": 1,
-                        "limit": 100,
+                        "limit": result_limit,
                         "sort": sort,
                         "t": "all",
                     }
@@ -291,18 +288,23 @@ class RedditMaxScraper:
                     for child in children:
                         d = child.get("data", {})
                         is_new = self.save_post(d, drug_name, sub)
+                        # Skip comment fetching in quick mode for speed
+                        # Wait, we need comments for the AI pipeline! We will fetch them but limit to top 3 in quick mode.
                         if is_new:
                             permalink = d.get("permalink", "")
                             if permalink:
+                                if self.quick_mode and getattr(self, "quick_comments_fetched", 0) > 3:
+                                    continue
                                 self.fetch_comments_for_post(
                                     permalink, d["id"]
                                 )
+                                self.quick_comments_fetched = getattr(self, "quick_comments_fetched", 0) + 1
 
                     after = body.get("data", {}).get("after")
                     if not after:
                         break
                     pages += 1
-                    time.sleep(BASE_DELAY + random.uniform(0, 1))
+                    time.sleep(BASE_DELAY + random.uniform(0, 0.3))
 
                 self.subreddits_scraped.add(sub)
                 time.sleep(BASE_DELAY + random.uniform(0, 0.5))
