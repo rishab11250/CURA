@@ -1,6 +1,35 @@
+"use client";
 import FAB from "@/components/FAB";
+import { useState } from "react";
 
 export default function CuraTimeline() {
+  const [foodInput, setFoodInput] = useState("");
+  const [qtyInput, setQtyInput] = useState("");
+  const [simItems, setSimItems] = useState([]);
+
+  const handleAddFood = () => {
+    if (foodInput.trim() && qtyInput) {
+      const val = parseInt(qtyInput) || 0;
+      const boost = Math.min(Math.round((foodInput.length * 0.2) + (val * 0.05)), 15);
+      
+      setSimItems(prev => [...prev, {
+        id: Date.now().toString(),
+        name: foodInput.trim(),
+        qty: val,
+        boost: boost
+      }]);
+      
+      setFoodInput("");
+      setQtyInput("");
+    }
+  };
+
+  const handleRemoveFood = (id) => {
+    setSimItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const totalBoost = Math.min(simItems.reduce((acc, item) => acc + item.boost, 0), 100);
+
   return (
     <div className="flex h-[calc(100vh-80px)] overflow-hidden">
       {/* Main Content */}
@@ -113,18 +142,112 @@ export default function CuraTimeline() {
             <p className="text-3xl font-light text-primary">LOW</p>
           </div>
 
-          {/* Simulation Mode */}
-          <div className="bg-on-surface p-8 rounded-[2rem] flex flex-col gap-6 text-white overflow-hidden relative">
-            <div className="absolute -right-8 -bottom-8 opacity-10">
-              <span className="material-symbols-outlined text-9xl">analytics</span>
+          {/* Simulation Mode (Dynamic Calculator) */}
+          <div className="md:col-span-2 bg-on-surface p-8 rounded-[2rem] flex flex-col gap-6 text-white relative antigravity-shadow">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none"></div>
+            
+            <div className="flex items-start justify-between relative z-10">
+              <div>
+                <h5 className="font-[Manrope] text-2xl font-bold mb-1">Nutrition Simulator</h5>
+                <p className="text-sm text-surface-variant leading-relaxed">
+                  Input food sources and quantities to project recovery acceleration.
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl">science</span>
+              </div>
             </div>
-            <h5 className="font-[Manrope] text-xl font-light">Simulation Mode</h5>
-            <p className="text-sm text-surface-variant leading-relaxed">
-              Adjust your caloric intake to see projected recovery acceleration.
-            </p>
-            <button className="mt-auto w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-container transition-colors">
-              Start Simulator
-            </button>
+
+            <div className="flex flex-col gap-4 relative z-10">
+              {/* Input Area */}
+              <div className="flex gap-3 items-start">
+                <div className="flex-1 bg-white/5 border border-white/10 rounded-xl p-2 flex items-center focus-within:border-primary/50 transition-colors">
+                  <span className="material-symbols-outlined text-white/50 px-2 text-lg">restaurant</span>
+                  <input 
+                    type="text" 
+                    value={foodInput}
+                    onChange={(e) => setFoodInput(e.target.value)}
+                    placeholder="e.g. Salmon, Spinach, Almonds..." 
+                    className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-white/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddFood();
+                    }}
+                  />
+                </div>
+                <div className="w-32 bg-white/5 border border-white/10 rounded-xl p-2 flex items-center focus-within:border-primary/50 transition-colors">
+                  <span className="material-symbols-outlined text-white/50 px-2 text-lg">scale</span>
+                  <input 
+                    type="number" 
+                    value={qtyInput}
+                    onChange={(e) => setQtyInput(e.target.value)}
+                    placeholder="Qty (g)" 
+                    min="1"
+                    className="bg-transparent border-none text-white text-sm w-full outline-none placeholder:text-white/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddFood();
+                    }}
+                  />
+                </div>
+                <button 
+                  className="h-[46px] px-6 bg-primary text-white font-bold rounded-xl hover:bg-primary-container transition-colors flex items-center justify-center disabled:opacity-50"
+                  onClick={handleAddFood}
+                  disabled={!foodInput.trim() || !qtyInput}
+                >
+                  <span className="material-symbols-outlined text-xl">add</span>
+                </button>
+              </div>
+
+              {/* Added Items List */}
+              <div className="flex flex-col gap-2 max-h-32 overflow-y-auto scroller-hide">
+                {simItems.map(item => (
+                  <button 
+                    key={item.id}
+                    onClick={() => handleRemoveFood(item.id)}
+                    className="group flex items-center justify-between bg-white/5 hover:bg-error/20 border border-white/10 hover:border-error/30 p-3 rounded-xl transition-all text-left"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-white">{item.name}</p>
+                      <p className="text-[10px] text-surface-variant font-medium uppercase uppercase tracking-wider">{item.qty}g</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-bold text-sm">+{item.boost}%</span>
+                      <span className="material-symbols-outlined text-white/20 group-hover:text-error text-lg transition-colors">delete</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Results */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="flex justify-between items-end mb-2">
+                  <span className="text-xs text-surface-variant uppercase tracking-widest font-bold">Projected Acceleration</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-[Manrope] font-bold text-primary">{totalBoost.toFixed(1)}</span>
+                    <span className="text-primary font-bold">%</span>
+                  </div>
+                </div>
+                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${totalBoost}%` }}></div>
+                </div>
+                
+                {totalBoost > 0 && (
+                  <p className="text-xs text-surface-variant mt-3">
+                    {totalBoost > 20 ? (
+                      <span className="flex items-center gap-1.5 text-primary">
+                        <span className="material-symbols-outlined text-[14px]">insights</span> 
+                        Highly optimal combination. Significant cellular regeneration expected.
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <span className="material-symbols-outlined text-[14px]">insights</span> 
+                        Marginal improvement. Consider adding potent neuro-protectors.
+                      </span>
+                    )}
+                  </p>
+                )}
+              </div>
+
+            </div>
           </div>
         </div>
       </main>
